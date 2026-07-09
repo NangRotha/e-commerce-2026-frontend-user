@@ -4,7 +4,7 @@ import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 
 // Must match the backend address (same as api.js)
-const BASE_URL = 'http://127.0.0.1:8000';
+const BASE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000';
 
 const getFullImageUrl = (url) => {
   if (!url) return null;

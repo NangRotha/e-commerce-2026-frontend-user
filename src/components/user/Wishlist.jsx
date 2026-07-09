@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 // =============================================
 // HELPER: Fix Backend Image Paths
 // =============================================
-const BASE_URL = 'http://127.0.0.1:8000';
+const BASE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000';
 
 const getFullImageUrl = (url) => {
   if (!url) return null;

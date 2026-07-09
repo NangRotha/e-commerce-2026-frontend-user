@@ -1,16 +1,44 @@
 import { useEffect, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { FiCheckCircle, FiHome, FiShoppingBag } from 'react-icons/fi';
+import { FiCheckCircle, FiHome, FiShoppingBag, FiLoader } from 'react-icons/fi';
+import { orderAPI } from '../services/api';
 
 const PaymentSuccess = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [countdown, setCountdown] = useState(5);
+  const [countdown, setCountdown] = useState(10);
+  const [transactionId, setTransactionId] = useState('N/A');
+  const [amount, setAmount] = useState('0.00');
+  const [loading, setLoading] = useState(true);
 
-  // Extract transaction_id from URL query params
   const queryParams = new URLSearchParams(location.search);
-  const transactionId = queryParams.get('transaction_id') || 'N/A';
-  const amount = queryParams.get('amount') || '0.00';
+  const urlTransactionId = queryParams.get('transaction_id');
+  const urlAmount = queryParams.get('amount');
+
+  useEffect(() => {
+    const loadOrderInfo = async () => {
+      try {
+        if (urlTransactionId && urlAmount) {
+          setTransactionId(urlTransactionId);
+          setAmount(urlAmount);
+        } else {
+          const storedOrderId = sessionStorage.getItem('last_order_id');
+          if (storedOrderId) {
+            const response = await orderAPI.getById(storedOrderId);
+            const orderData = response.data;
+            setTransactionId(orderData.id || storedOrderId);
+            setAmount(orderData.total_price?.toFixed(2) || '0.00');
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load order info:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadOrderInfo();
+  }, [urlTransactionId, urlAmount]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -25,6 +53,17 @@ const PaymentSuccess = () => {
     }, 1000);
     return () => clearInterval(timer);
   }, [navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] p-4">
+        <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 max-w-md w-full text-center">
+          <div className="w-16 h-16 border-4 border-[#3B82F6] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">កំពុងផ្ទុកព័ត៌មានការបញ្ជាទិញ...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] p-4">

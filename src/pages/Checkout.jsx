@@ -85,7 +85,8 @@ const Checkout = () => {
       const orderId = order.data.id;
       toast.success('ការបញ្ជាទិញបានជោគជ័យ!');
 
-      // 🚨 Redirect directly to KHQR checkout
+      sessionStorage.setItem('last_order_id', orderId);
+
       const res = await khqrAPI.createRedirect(orderId, cart.total);
       if (res.data && res.data.redirect_url) {
         window.location.href = res.data.redirect_url;
