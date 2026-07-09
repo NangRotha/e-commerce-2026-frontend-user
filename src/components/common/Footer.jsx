@@ -26,6 +26,7 @@ const Footer = () => {
 
   const loadFooterData = async () => {
     try {
+      // ព្យាយាមទាញយកទិន្នន័យពី Backend
       const res = await settingsAPI.getFooter();
       if (res.data) {
         setFooterData(res.data);
@@ -33,7 +34,8 @@ const Footer = () => {
         setFooterData(fallbackData);
       }
     } catch (error) {
-      console.log('Using fallback footer');
+      // ប្រសិនបើ Backend មិនដំណើរការ (404) វានឹងចូលមកទីនេះ ហើយប្រើ Fallback Data
+      console.warn('Backend Footer API not found. Using local fallback data.');
       setFooterData(fallbackData);
     } finally {
       setLoading(false);
@@ -60,12 +62,12 @@ const Footer = () => {
             </p>
             <div className="flex space-x-4 text-[#3B82F6]">
               {footerData.social?.includes('Facebook') && (
-                <a href="#" className="bg-white/60 p-2.5 rounded-full hover:bg-white hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+                <a href="#" className="bg-white/60 p-2.5 rounded-full hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300">
                   <FiFacebook className="text-lg" />
                 </a>
               )}
               {footerData.social?.includes('Instagram') && (
-                <a href="#" className="bg-white/60 p-2.5 rounded-full hover:bg-white hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+                <a href="#" className="bg-white/60 p-2.5 rounded-full hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300">
                   <FiInstagram className="text-lg" />
                 </a>
               )}
@@ -96,23 +98,26 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Column 4: Contact */}
+          {/* Column 4: Contact - បានកែសម្រួលការតម្រឹម Icon ឱ្យល្អជាងមុន */}
           <div>
             <h4 className="font-semibold text-[#1A237E] mb-5 text-sm uppercase tracking-wider">ទំនាក់ទំនង</h4>
             <ul className="space-y-3 text-sm text-gray-500">
               {footerData.contact?.phone && (
                 <li className="flex items-center gap-3">
-                  <FiPhone className="text-[#3B82F6]" /> {footerData.contact.phone}
+                  <FiPhone className="text-[#3B82F6] flex-shrink-0" /> 
+                  <span>{footerData.contact.phone}</span>
                 </li>
               )}
               {footerData.contact?.email && (
                 <li className="flex items-center gap-3">
-                  <FiMail className="text-[#3B82F6]" /> {footerData.contact.email}
+                  <FiMail className="text-[#3B82F6] flex-shrink-0" /> 
+                  <span>{footerData.contact.email}</span>
                 </li>
               )}
               {footerData.contact?.address && (
-                <li className="flex items-center gap-3">
-                  <FiMapPin className="text-[#3B82F6]" /> {footerData.contact.address}
+                <li className="flex items-start gap-3">
+                  <FiMapPin className="text-[#3B82F6] flex-shrink-0 mt-0.5" /> 
+                  <span>{footerData.contact.address}</span>
                 </li>
               )}
             </ul>
@@ -124,10 +129,10 @@ const Footer = () => {
           <p>© {new Date().getFullYear()} {footerData.brandName || 'MarketPlace'} Corporate. All rights reserved.</p>
           
           <div className="flex flex-wrap justify-center gap-6">
-            <a href="#" className="hover:text-[#3B82F6] transition-colors duration-300 hover:translate-y-[-2px] hover:shadow-sm px-2">Privacy Policy</a>
-            <a href="#" className="hover:text-[#3B82F6] transition-colors duration-300 hover:translate-y-[-2px] hover:shadow-sm px-2">Terms of Service</a>
-            <a href="#" className="hover:text-[#3B82F6] transition-colors duration-300 hover:translate-y-[-2px] hover:shadow-sm px-2">Help Center</a>
-            <a href="#" className="hover:text-[#3B82F6] transition-colors duration-300 hover:translate-y-[-2px] hover:shadow-sm px-2">Contact Us</a>
+            <a href="#" className="hover:text-[#3B82F6] hover:translate-y-[-2px] transition-all duration-300 px-2">Privacy Policy</a>
+            <a href="#" className="hover:text-[#3B82F6] hover:translate-y-[-2px] transition-all duration-300 px-2">Terms of Service</a>
+            <a href="#" className="hover:text-[#3B82F6] hover:translate-y-[-2px] transition-all duration-300 px-2">Help Center</a>
+            <a href="#" className="hover:text-[#3B82F6] hover:translate-y-[-2px] transition-all duration-300 px-2">Contact Us</a>
           </div>
         </div>
         

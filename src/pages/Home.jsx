@@ -21,30 +21,28 @@ const Home = () => {
   const [heroIndex, setHeroIndex] = useState(0);
   const heroInterval = useRef();
 
-  // Fallback Data (Used only if Backend returns empty or fails)
+  // Fallback Data
   const fallbackHeroSlides = [
     {
       title: "ឥតខ្សែ",
       subtitle: "Sony WH-CH720N",
-      image_url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80'
+      image_url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1200&q=80'
     },
     {
       title: "ហ្គេម",
       subtitle: "Logitech G Pro X",
-      image_url: 'https://images.unsplash.com/photo-1612444530582-fc66183b16f7?auto=format&fit=crop&w=600&q=80'
+      image_url: 'https://images.unsplash.com/photo-1612444530582-fc66183b16f7?auto=format&fit=crop&w=1200&q=80'
     }
   ];
 
-  // Fetch all Data from Backend
+  // Fetch all Data
   useEffect(() => {
     const fetchAllData = async () => {
       try {
         setLoading(true);
         
-        // 1. FETCH HERO BANNERS (Slides)
         try {
           const bannerRes = await bannerAPI.getAll();
-          // Check if backend returned valid data. If yes, use it. Else, use fallback.
           const realBanners = bannerRes.data && Array.isArray(bannerRes.data) && bannerRes.data.length > 0 
             ? bannerRes.data 
             : fallbackHeroSlides;
@@ -54,7 +52,6 @@ const Home = () => {
           setHeroSlides(fallbackHeroSlides);
         }
 
-        // 2. FETCH CATEGORIES
         try {
           const catRes = await categoryAPI.getAll();
           setCategories(catRes.data || []);
@@ -63,7 +60,6 @@ const Home = () => {
           setCategories([]);
         }
 
-        // 3. FETCH FEATURED PRODUCTS (Limit 4)
         try {
           const featuredRes = await productAPI.getAll({ limit: 4 });
           setFeaturedProducts(featuredRes.data || []);
@@ -85,7 +81,6 @@ const Home = () => {
   const nextHero = () => setHeroIndex((prev) => (prev + 1) % Math.max(heroSlides.length, 1));
   const prevHero = () => setHeroIndex((prev) => (prev - 1 + Math.max(heroSlides.length, 1)) % Math.max(heroSlides.length, 1));
 
-  // Auto Slide Interval
   useEffect(() => {
     if (heroSlides.length > 1) {
       heroInterval.current = setInterval(nextHero, 5000);
@@ -121,82 +116,77 @@ const Home = () => {
   }
 
   return (
-    // <============ កែពណ៌ផ្ទៃខាងក្រោយពី bg-white ទៅ bg-[#F8F9FA] ============>
-    <div className="bg-[#F8F9FA] min-h-screen font-sans pb-10 text-[#111827] mt-24">
+    <div className="bg-[#F8F9FA] min-h-screen font-sans pb-10 text-[#111827]">
       
-      {/* 1. ANIMATED HERO SLIDER */}
-      <div className="container mx-auto px-4 pt-6">
-        <div className="relative w-full h-[500px] md:h-[600px] bg-[#F0F0F0] rounded-[40px] overflow-hidden shadow-sm flex flex-col md:flex-row">
+      {/* 1. CLEAN FULL-SCREEN HERO SLIDER */}
+      <div className="mt-24 container mx-auto px-4 pt-6">
+        <div className="relative w-full h-[450px] md:h-[650px] lg:h-[800px] bg-[#F0F0F0] rounded-[30px] md:rounded-[40px] overflow-hidden shadow-sm flex flex-col md:flex-row">
           
           {/* Sliding Container */}
           <div 
-            className="absolute inset-0 flex h-full transition-transform duration-700 ease-in-out"
+            className="absolute inset-0 flex h-full w-full transition-transform duration-700 ease-in-out"
             style={{ transform: `translateX(-${heroIndex * 100}%)` }}
           >
             {heroSlides.map((slide, idx) => (
-              <div key={idx} className="min-w-full h-full flex flex-col md:flex-row">
-                {/* Left Text Content */}
-                <div className="md:w-1/2 p-8 md:p-16 flex flex-col justify-center z-10 relative">
-                  {/* Animate text only for the active slide */}
-                  <div className={`${heroIndex === idx ? 'animate-fadeIn' : 'opacity-0'}`}>
-                    <span className="text-gray-500 font-medium text-lg mb-2 block">
+              <div key={idx} className="min-w-full h-full flex flex-col md:flex-row relative">
+                
+                <div className="absolute inset-0 w-full h-full">
+                  <img 
+                    src={getImageUrl(slide.image_url || slide.url, 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1920&q=80')}
+                    alt={slide.title || "Hero Background"}
+                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1920&q=80'; }}
+                    className="w-full h-full object-cover object-center"
+                  />
+                </div>
+
+                <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent z-10"></div>
+
+                <div className="relative z-20 w-full md:w-2/3 p-8 md:p-16 flex flex-col justify-center items-center md:items-start text-white">
+                  <div className={`max-w-xl ${heroIndex === idx ? 'animate-fadeIn' : 'opacity-0'}`}>
+                    <span className="bg-white/20 backdrop-blur-sm px-4 py-1 rounded-full text-xs md:text-sm inline-block mb-4">
                       {slide.subtitle || slide.title || 'ឧបករណ៍ពិសេស'}
                     </span>
-                    <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-4 text-[#111827]">
+                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-4 drop-shadow-lg">
                       {slide.title || 'ឥតខ្សែ'}
                     </h1>
-                    <div className="text-[#C8C5A0] text-6xl md:text-8xl font-bold uppercase tracking-tighter opacity-90 -mt-2 mb-4">
-                      {slide.title ? slide.title.toUpperCase() : 'កាស'}
-                    </div>
-                    <div className="mt-4">
+                    <p className="text-sm md:text-lg text-gray-200 max-w-md mb-6">
+                      {slide.description || 'ទទួលបាននូវបទពិសោធន៍ទំនើបជាមួយនឹងផលិតផលដ៏អស្ចារ្យរបស់យើង។'}
+                    </p>
+                    <div>
                       <Link to="/shop" className="bg-[#E23D3D] text-white px-8 py-3 rounded-full font-medium text-sm hover:bg-red-700 transition hover:scale-105 active:scale-95 inline-block duration-200">
-                        ទិញតាមប្រភេទ
+                        ទិញឥឡូវនេះ
                       </Link>
-                    </div>
-                    <div className="mt-6 max-w-xs">
-                      <h4 className="font-bold text-sm mb-1">ការពិពណ៌នា</h4>
-                      <p className="text-xs text-gray-600 leading-relaxed">
-                        {slide.description || 'ផលិតផលគុណភាពខ្ពស់ដែលផ្តល់នូវបទពិសោធន៍ល្អបំផុតសម្រាប់អ្នក។'}
-                      </p>
                     </div>
                   </div>
                 </div>
-                
-                {/* Right Image Content */}
-                <div className="md:w-1/2 relative flex items-center justify-center p-10">
-                  <img 
-                    src={getImageUrl(slide.image_url || slide.url, 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80')}
-                    alt={slide.title || "Hero Product"}
-                    className={`w-full max-w-md object-contain drop-shadow-2xl z-10 transition-all duration-700 ${heroIndex === idx ? 'animate-zoomInFast' : 'opacity-0 scale-95'}`}
-                  />
-                </div>
+
               </div>
             ))}
           </div>
 
           {/* Slider Dots */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex gap-2">
             {heroSlides.map((_, index) => (
               <button 
                 key={index} 
                 onClick={() => setHeroIndex(index)}
-                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${heroIndex === index ? 'bg-[#111827] w-6' : 'bg-gray-400 hover:bg-gray-600'}`}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${heroIndex === index ? 'bg-white w-8' : 'bg-white/40 hover:bg-white/80'}`}
               />
             ))}
           </div>
           
           {/* Navigation Arrows */}
-          <button onClick={prevHero} className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/60 p-2 rounded-full shadow-sm hover:bg-white hover:shadow-md transition hover:scale-110 active:scale-95">
-            <FiChevronLeft className="text-[#111827] text-xl" />
+          <button onClick={prevHero} className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-white/40 p-3 rounded-full backdrop-blur-sm hover:bg-white/70 transition hover:scale-110 active:scale-95">
+            <FiChevronLeft className="text-white text-xl md:text-2xl" />
           </button>
-          <button onClick={nextHero} className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/60 p-2 rounded-full shadow-sm hover:bg-white hover:shadow-md transition hover:scale-110 active:scale-95">
-            <FiChevronRight className="text-[#111827] text-xl" />
+          <button onClick={nextHero} className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-white/40 p-3 rounded-full backdrop-blur-sm hover:bg-white/70 transition hover:scale-110 active:scale-95">
+            <FiChevronRight className="text-white text-xl md:text-2xl" />
           </button>
 
         </div>
       </div>
 
-      {/* 2. STAGGERED CATEGORIES GRID (Real Backend Data) */}
+      {/* 2. STAGGERED CATEGORIES GRID */}
       {categories.length > 0 && (
         <div className="container mx-auto px-4 py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -222,6 +212,7 @@ const Home = () => {
                   <img 
                     src={getImageUrl(cat.image_url, 'https://via.placeholder.com/150')}
                     alt={cat.name}
+                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/150'; }}
                     className="w-full h-full object-contain drop-shadow-xl transform translate-x-4 translate-y-4"
                   />
                 </div>
@@ -231,7 +222,7 @@ const Home = () => {
         </div>
       )}
 
-      {/* 3. ANIMATED FEATURED PRODUCTS (Real Backend Data) */}
+      {/* 3. ANIMATED FEATURED PRODUCTS */}
       {featuredProducts.length > 0 && (
         <div className="container mx-auto px-4 py-8">
           <div className="flex justify-between items-center mb-6 animate-fadeInUp">
@@ -252,6 +243,7 @@ const Home = () => {
                   <img 
                     src={getImageUrl(product.images?.[0]?.image_url, 'https://via.placeholder.com/200')} 
                     alt={product.name} 
+                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/200'; }}
                     className="w-full h-full object-contain p-2 transition-transform duration-500 group-hover:scale-110"
                   />
                 </Link>
@@ -276,7 +268,7 @@ const Home = () => {
         </div>
       )}
 
-      {/* 4. ICONS BAR (ដក border-t ចេញដើម្បីឱ្យរលោងជាងមុន) */}
+      {/* 4. ICONS BAR */}
       <div className="container mx-auto px-4 py-12 animate-fadeInUp">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
@@ -294,29 +286,39 @@ const Home = () => {
         </div>
       </div>
 
-      {/* 5. BOTTOM XBOX BANNER + ADDITIONAL CARDS */}
+      {/* ✅ 5. UPDATED XBOX BANNER: LEFT TEXT & RIGHT IMAGE WITH PERFECT SPACING */}
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
           {/* Main Xbox Banner */}
-          <div className="md:col-span-2 bg-[#3A9B38] rounded-[40px] p-8 md:p-12 flex flex-col md:flex-row items-center relative overflow-hidden shadow-sm h-[400px] group animate-fadeInUp">
-            <div className="md:w-1/2 z-10 text-white">
-              <span className="bg-white/10 backdrop-blur-sm px-4 py-1 rounded-full text-xs inline-block mb-4">២០% បញ្ចុះតម្លៃ</span>
-              <h2 className="text-6xl font-black leading-none tracking-tighter mb-2">XBOX</h2>
-              <h2 className="text-6xl font-black leading-none tracking-tighter mb-2">SERIE</h2>
-              <h2 className="text-6xl font-black leading-none tracking-tighter mb-6">X</h2>
-              <p className="text-xs text-green-100 font-medium">១៥ វិច្ឆិកា ដល់ ៧ ធ្នូ</p>
-            </div>
+          <div className="md:col-span-2 bg-[#3A9B38] rounded-[40px] p-4 sm:p-6 md:p-12 flex flex-row items-center relative overflow-hidden shadow-sm h-[280px] sm:h-[320px] md:h-[400px] group animate-fadeInUp">
             
-            <div className="md:w-1/2 h-full flex items-center justify-center z-10 relative mt-4 md:mt-0 transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-2">
+            {/* LEFT HALF: TEXT (flex-1) */}
+            <div className="flex-1 w-1/2 z-10 text-white flex flex-col justify-center h-full pl-1 sm:pl-4 pr-2 sm:pr-4">
+              <span className="bg-white/10 backdrop-blur-sm px-3 py-0.5 rounded-full text-[10px] sm:text-xs inline-block mb-2 w-fit">២០% បញ្ចុះតម្លៃ</span>
+              <h2 className="text-[28px] sm:text-4xl md:text-6xl font-black leading-none tracking-tighter mb-1 sm:mb-2">XBOX</h2>
+              <h2 className="text-[28px] sm:text-4xl md:text-6xl font-black leading-none tracking-tighter mb-1 sm:mb-2">SERIE</h2>
+              <h2 className="text-[28px] sm:text-4xl md:text-6xl font-black leading-none tracking-tighter mb-2 sm:mb-4">X</h2>
+              <p className="text-[8px] sm:text-xs text-green-100 font-medium">១៥ វិច្ឆិកា ដល់ ៧ ធ្នូ</p>
+              
+              {/* Mobile-only Buy Button */}
+              <button className="mt-2 sm:mt-3 md:hidden bg-white/10 backdrop-blur-sm border border-white text-white px-3 py-1 rounded-full text-[10px] hover:bg-white hover:text-[#3A9B38] transition w-fit">
+                ទិញ
+              </button>
+            </div>
+
+            {/* ✅ RIGHT HALF: IMAGE (flex-1) - Now with padding to pull it in slightly */}
+            <div className="flex-1 w-1/2 h-full flex items-center justify-center z-10 relative transition-transform duration-500 group-hover:scale-105 md:group-hover:-rotate-2">
               <img 
                 src="https://cms-assets.xboxservices.com/assets/f0/8d/f08dfa50-f2ef-4873-bc8f-bcb6c34e48c0.png?n=642227_Hero-Gallery-0_C2_857x676.png" 
                 alt="Xbox Series X" 
-                className="w-full max-h-[300px] object-contain drop-shadow-2xl"
+                onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1621259182973-f9b2d1e2e09e?auto=format&fit=crop&w=600&q=80'; }}
+                className="w-full h-full object-contain object-center p-2 sm:p-4 drop-shadow-2xl max-h-[240px] sm:max-h-[280px] md:max-h-[350px]"
               />
             </div>
 
-            <div className="absolute right-10 bottom-10 text-white text-right z-10 hidden md:block">
+            {/* Desktop-only Bottom Right Text */}
+            <div className="absolute right-8 bottom-8 text-white text-right z-10 hidden md:block">
               <p className="font-medium text-lg">"បំពេញក្តីសុបិនរបស់អ្នក"</p>
               <p className="text-[10px] opacity-70 max-w-[150px] ml-auto mt-1 leading-relaxed">ផលិតផលដ៏ល្អបំផុតសម្រាប់អ្នកចូលចិត្តហ្គេម។</p>
               <button className="mt-3 bg-transparent border border-white text-white px-6 py-1.5 rounded-full text-xs hover:bg-white hover:text-[#3A9B38] transition hover:scale-105 active:scale-95">ទិញ</button>
@@ -324,10 +326,10 @@ const Home = () => {
           </div>
 
           {/* Right side small card */}
-          <div className="bg-[#FCE9F3] rounded-[40px] p-8 flex flex-col justify-between relative overflow-hidden shadow-sm h-[400px] group animate-fadeInUp" style={{ animationDelay: "0.2s" }}>
+          <div className="bg-[#FCE9F3] rounded-[40px] p-8 flex flex-col justify-between relative overflow-hidden shadow-sm h-[280px] sm:h-[320px] md:h-[400px] group animate-fadeInUp" style={{ animationDelay: "0.2s" }}>
             <div className="z-10">
               <p className="text-[10px] uppercase text-pink-600 font-semibold tracking-wider mb-1">ថ្មី</p>
-              <h3 className="text-3xl font-bold text-[#111827] leading-tight mb-6">Amazon<br/>SPEAKER</h3>
+              <h3 className="text-2xl sm:text-3xl font-bold text-[#111827] leading-tight mb-6">Amazon<br/>SPEAKER</h3>
               <button className="bg-white px-6 py-2 rounded-full text-xs font-semibold shadow-sm hover:shadow-md transition hover:scale-105 active:scale-95">
                 រកមើល
               </button>
@@ -336,6 +338,7 @@ const Home = () => {
               <img 
                 src="https://taketalkbd.com/wp-content/uploads/2024/08/Amazon-Echo-Dot-4th.4.png" 
                 alt="Speaker" 
+                onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1543512214-318c7553f230?auto=format&fit=crop&w=600&q=80'; }}
                 className="w-full object-contain drop-shadow-xl transform translate-x-4 translate-y-4"
               />
             </div>
@@ -346,9 +349,8 @@ const Home = () => {
 
       {/* CSS for Keyframe Animations */}
       <style>{`
-        /* Staggered Fade & Slide Up */
         @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(30px); }
+          from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
         .animate-fadeInUp {
@@ -356,8 +358,6 @@ const Home = () => {
           opacity: 0;
           animation-fill-mode: forwards;
         }
-
-        /* Fast zoom for sliding images */
         @keyframes zoomInFast {
           from { opacity: 0; transform: scale(0.95); }
           to { opacity: 1; transform: scale(1); }
@@ -365,8 +365,6 @@ const Home = () => {
         .animate-zoomInFast {
           animation: zoomInFast 0.5s ease-out forwards;
         }
-
-        /* Fade In / Out for Text */
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }

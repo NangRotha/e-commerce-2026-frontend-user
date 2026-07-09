@@ -37,7 +37,7 @@ const Login = () => {
       <div className="absolute bottom-[-20%] right-[-10%] w-[40rem] h-[40rem] bg-purple-400/20 rounded-full blur-3xl pointer-events-none"></div>
 
       {/* Main Floating Card Container - បន្ថែម bg-[#F8F9FA] ដើម្បីកុំឱ្យថ្លាពេក */}
-      <div className="mt-14 relative w-full max-w-6xl bg-[#F8F9FA] backdrop-blur-xl rounded-[3rem] shadow-2xl border border-white/40 p-8 md:p-12 flex flex-col lg:flex-row gap-12 overflow-hidden">
+      <div className="mt-24 relative w-full max-w-6xl bg-[#F8F9FA] backdrop-blur-xl rounded-[3rem] shadow-2xl border border-white/40 p-8 md:p-12 flex flex-col lg:flex-row gap-12 overflow-hidden">
         
         {/* ========== LEFT SIDE: 3D ILLUSTRATION ========== */}
         <div className="w-full lg:w-1/2 flex flex-col justify-between relative z-10">

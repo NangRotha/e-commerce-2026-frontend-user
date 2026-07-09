@@ -36,7 +36,6 @@ const Checkout = () => {
     phone: user?.phone || '',
     address: user?.address || '',
     province: user?.province || '',
-    // 🚨 removed payment_method - KHQR is now forced
   });
 
   useEffect(() => {
@@ -62,8 +61,6 @@ const Checkout = () => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
-  const [redirecting, setRedirecting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -172,7 +169,7 @@ const Checkout = () => {
                 </div>
               </div>
               
-              {/* 🚨 KHQR Label (No Select Dropdown) */}
+              {/* KHQR Label (No Select Dropdown) */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">វិធីទូទាត់</label>
                 <div className="w-full pl-12 pr-4 py-3.5 bg-blue-50 border border-blue-200 rounded-xl text-blue-800 text-sm flex items-center">

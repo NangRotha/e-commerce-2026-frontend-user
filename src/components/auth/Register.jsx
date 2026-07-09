@@ -3,8 +3,37 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { 
   FiUser, FiMail, FiLock, FiPhone, 
-  FiHome, FiGlobe, FiEye, FiEyeOff 
+  FiHome, FiGlobe, FiEye, FiEyeOff, FiAlertCircle 
 } from 'react-icons/fi';
+
+// List of Khmer Provinces for the Select Dropdown
+const KHMER_PROVINCES = [
+  "បន្ទាយមានជ័យ (Banteay Meanchey)",
+  "បាត់ដំបង (Battambang)",
+  "កំពង់ចាម (Kampong Cham)",
+  "កំពង់ឆ្នាំង (Kampong Chhnang)",
+  "កំពង់ស្ពឺ (Kampong Speu)",
+  "កំពង់ធំ (Kampong Thom)",
+  "កំពត (Kampot)",
+  "កណ្តាល (Kandal)",
+  "កោះកុង (Koh Kong)",
+  "ក្រចេះ (Kratie)",
+  "មណ្ឌលគិរី (Mondulkiri)",
+  "ឧត្តរមានជ័យ (Oddar Meanchey)",
+  "ពោធិ៍សាត់ (Pursat)",
+  "ព្រៃវែង (Prey Veng)",
+  "ព្រះវិហារ (Preah Vihear)",
+  "រតនគិរី (Ratanakiri)",
+  "សៀមរាប (Siem Reap)",
+  "ស្ទឹងត្រែង (Stung Treng)",
+  "ស្វាយរៀង (Svay Rieng)",
+  "តាកែវ (Takeo)",
+  "កែប (Kep)",
+  "ប៉ៃលិន (Pailin)",
+  "ព្រះសីហនុ (Preah Sihanouk)",
+  "ភ្នំពេញ (Phnom Penh)",
+  "ទួលគគីរី (Tboung Khmum)"
+];
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -14,23 +43,49 @@ const Register = () => {
     full_name: '',
     phone: '',
     address: '',
-    province: '',
+    province: '', // Start empty
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  
   const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    
+    // Real-time Password Validation
+    if (name === 'password') {
+      if (value.length > 0 && value.length < 8) {
+        setPasswordError('ពាក្យសម្ងាត់ត្រូវតែមានយ៉ាងហោចណាស់ ៨ តួអក្សរ');
+      } else {
+        setPasswordError('');
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setPasswordError('');
+
+    // Frontend Validation
+    if (formData.password.length < 8) {
+      setPasswordError('ពាក្យសម្ងាត់ត្រូវតែមានយ៉ាងហោចណាស់ ៨ តួអក្សរ');
+      return;
+    }
+
     setLoading(true);
     const result = await register(formData);
+    
     if (result.success) {
       navigate('/login');
+    } else {
+      // Display backend error message (if provided)
+      setError(result.message || 'ការចុះឈ្មោះបរាជ័យ។ សូមពិនិត្យមើលទិន្នន័យរបស់អ្នកឡើងវិញ។');
     }
     setLoading(false);
   };
@@ -59,7 +114,7 @@ const Register = () => {
             </p>
           </div>
 
-          {/* 3. FULL ILLUSTRATION (No Beige Box, Floating freely) */}
+          {/* 3. FULL ILLUSTRATION (Floating freely) */}
           <div className="w-full flex-1 flex items-center justify-center relative mt-4 ">
             <img 
               src="https://i.pinimg.com/originals/a3/98/59/a39859d44ad68f19326456c71900eaf6.gif" 
@@ -78,6 +133,14 @@ const Register = () => {
               <Link to="/login" className="text-gray-400 hover:text-gray-600 transition pb-4 font-medium text-base -mb-4">ចូលប្រើ</Link>
               <Link to="/register" className="text-[#3B82F6] border-b-2 border-[#3B82F6] pb-4 font-medium text-base -mb-4">បង្កើតគណនី</Link>
             </div>
+
+            {/* Display API Error Message (if any) */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl flex items-center gap-2 animate-fadeIn">
+                <FiAlertCircle className="flex-shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
 
             {/* Form Container (Scrollable) */}
             <div className="max-h-[65vh] overflow-y-auto pr-2 custom-scrollbar">
@@ -127,7 +190,7 @@ const Register = () => {
                   </div>
                 </div>
 
-                {/* Password */}
+                {/* ✅ IMPROVED SECURE PASSWORD FIELD */}
                 <div className="space-y-1">
                   <label className="block text-sm font-medium text-gray-700">ពាក្យសម្ងាត់ *</label>
                   <div className="relative">
@@ -136,8 +199,15 @@ const Register = () => {
                       type={showPassword ? "text" : "password"} 
                       name="password" 
                       required
-                      className="w-full pl-10 pr-12 py-3 bg-[#F3F4F6] rounded-xl text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:bg-white transition-all duration-300 placeholder-gray-400 text-sm"
-                      value={formData.password} onChange={handleChange} 
+                      minLength={8}
+                      className={`w-full pl-10 pr-12 py-3 rounded-xl text-gray-700 focus:outline-none focus:ring-2 transition-all duration-300 placeholder-gray-400 text-sm ${
+                        passwordError 
+                          ? 'bg-red-50 border-2 border-red-300 focus:ring-red-500' 
+                          : 'bg-[#F3F4F6] focus:ring-2 focus:ring-[#3B82F6] focus:bg-white'
+                      }`}
+                      value={formData.password} 
+                      onChange={handleChange} 
+                      placeholder="យ៉ាងហោចណាស់ ៨ តួអក្សរ"
                     />
                     <button
                       type="button"
@@ -147,6 +217,20 @@ const Register = () => {
                       {showPassword ? <FiEye /> : <FiEyeOff />}
                     </button>
                   </div>
+                  
+                  {/* Live Password Error Message */}
+                  {passwordError && (
+                    <p className="text-xs text-red-500 mt-1 flex items-center gap-1 animate-fadeIn">
+                      <FiAlertCircle className="flex-shrink-0" /> {passwordError}
+                    </p>
+                  )}
+                  
+                  {/* Password Strength Hint (if valid) */}
+                  {formData.password.length >= 8 && !passwordError && (
+                    <p className="text-xs text-green-500 mt-1 animate-fadeIn">
+                      ✓ ពាក្យសម្ងាត់មានសុវត្ថិភាពគ្រប់គ្រាន់
+                    </p>
+                  )}
                 </div>
 
                 {/* Phone */}
@@ -177,16 +261,26 @@ const Register = () => {
                       />
                     </div>
                   </div>
+                  
+                  {/* Province Dropdown Select */}
                   <div className="space-y-1">
                     <label className="block text-sm font-medium text-gray-700">ខេត្ត/ក្រុង</label>
                     <div className="relative">
                       <FiGlobe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                      <input 
-                        type="text" 
+                      <select
                         name="province"
-                        className="w-full pl-10 pr-4 py-3 bg-[#F3F4F6] rounded-xl text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:bg-white transition-all duration-300 placeholder-gray-400 text-sm"
-                        value={formData.province} onChange={handleChange} 
-                      />
+                        required
+                        value={formData.province}
+                        onChange={handleChange}
+                        className="w-full pl-10 pr-4 py-3 bg-[#F3F4F6] rounded-xl text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:bg-white transition-all duration-300 text-sm appearance-none cursor-pointer"
+                      >
+                        <option value="" disabled>-- ជ្រើសរើសខេត្ត/ក្រុង --</option>
+                        {KHMER_PROVINCES.map((province) => (
+                          <option key={province} value={province}>
+                            {province}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>
@@ -240,20 +334,12 @@ const Register = () => {
           animation: fadeInRight 0.6s ease-out forwards;
         }
 
-        @keyframes fadeInScale {
-          from { opacity: 0; transform: scale(0.9); }
-          to { opacity: 1; transform: scale(1); }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-5px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fadeInScale {
-          animation: fadeInScale 0.8s ease-out forwards;
-        }
-
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-15px); }
-        }
-        .animate-float {
-          animation: float 4s ease-in-out infinite;
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out forwards;
         }
 
         /* Custom Scrollbar for the form */
