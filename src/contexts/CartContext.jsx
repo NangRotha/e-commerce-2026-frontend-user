@@ -40,7 +40,7 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = async (productId, quantity = 1, size = 'M', color = 'Black') => {
     if (!isAuthenticated) {
-      toast.error('សូមចូលប្រើដបើីបន្ថែមទំនិញទៅក្នុងកន្ត្រក');
+      toast.error('សូមLoginមុននិងបន្ថែមទំនិញទៅក្នុងកន្ត្រក');
       return false;
     }
     try {

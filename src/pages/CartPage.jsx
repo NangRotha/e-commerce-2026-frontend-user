@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { cartAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
-import { FiTrash2, FiShoppingCart, FiArrowRight, FiPlus, FiMinus } from 'react-icons/fi';
+import { FiTrash2, FiShoppingCart, FiPlus, FiMinus } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 
 // Must match the backend address (same as api.js)
@@ -59,11 +59,20 @@ const CartPage = () => {
     }
   };
 
-  const updateQuantity = async (itemId, newQuantity) => {
+  // ✅ FIXED: Send full item details to API to prevent 422 error
+  const updateQuantity = async (item, newQuantity) => {
     try {
-      await cartAPI.update(itemId, newQuantity);
+      // We send ALL the required data exactly as Backend expects
+      await cartAPI.update(item.id, {
+        quantity: newQuantity,
+        product_id: item.product_id,
+        size: item.size,
+        color: item.color,
+        price: item.product_price
+      });
       loadCart();
     } catch (error) {
+      console.error('Cart update error:', error);
       toast.error('មិនអាចធ្វើបច្ចុប្បន្នភាពកន្ត្រកបានទេ');
     }
   };
@@ -186,7 +195,7 @@ const CartPage = () => {
                       {item.product_name}
                     </Link>
                     <div className="text-sm text-gray-500 mt-1">
-                      ទំហំ: {item.size} | ពណ៌: {item.color}
+                      ទំហំ: {item.size || 'M'} | ពណ៌: {item.color || 'ខ្មៅ'}
                     </div>
                     <div className="text-sm text-gray-600 mt-1">
                       តម្លៃឯកតា: <span className="font-medium text-gray-800">${item.product_price.toFixed(2)}</span>
@@ -196,14 +205,14 @@ const CartPage = () => {
                   {/* Quantity Controls */}
                   <div className="flex items-center bg-[#F4F6FA] rounded-full border border-gray-200">
                     <button 
-                      onClick={() => updateQuantity(item.id, Math.max(1, item.quantity-1))} 
+                      onClick={() => updateQuantity(item, Math.max(1, item.quantity-1))} 
                       className="w-8 h-8 flex items-center justify-center hover:bg-gray-200 rounded-l-full transition hover:text-[#3B82F6]"
                     >
                       <FiMinus size={14} />
                     </button>
                     <span className="w-10 text-center font-medium text-sm">{item.quantity}</span>
                     <button 
-                      onClick={() => updateQuantity(item.id, item.quantity+1)} 
+                      onClick={() => updateQuantity(item, item.quantity+1)} 
                       className="w-8 h-8 flex items-center justify-center hover:bg-gray-200 rounded-r-full transition hover:text-[#3B82F6]"
                     >
                       <FiPlus size={14} />
@@ -213,7 +222,7 @@ const CartPage = () => {
                   {/* Price & Delete Button */}
                   <div className="flex items-center gap-6 ml-auto">
                     <div className="text-right">
-                      <div className="font-bold text-[#3B82F6] text-base">${item.subtotal.toFixed(2)}</div>
+                      <div className="font-bold text-[#3B82F6] text-base">${(item.subtotal || (item.product_price * item.quantity)).toFixed(2)}</div>
                     </div>
                     <motion.button 
                       onClick={() => removeItem(item.id)} 
