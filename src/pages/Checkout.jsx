@@ -27,6 +27,7 @@ const Checkout = () => {
   const [cart, setCart] = useState({ items: [], total: 0 });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   
@@ -62,6 +63,8 @@ const Checkout = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const [redirecting, setRedirecting] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (cart.items.length === 0) {
@@ -72,7 +75,7 @@ const Checkout = () => {
     try {
       const orderData = {
         ...formData,
-        payment_method: 'KHQR', // 🚨 Automatically set to KHQR
+        payment_method: 'KHQR',
         items: cart.items.map(item => ({
           product_id: item.product_id,
           quantity: item.quantity,
@@ -92,8 +95,10 @@ const Checkout = () => {
         window.location.href = res.data.redirect_url;
       } else {
         toast.error('មិនអាចទទួលបាន URL ទូទាត់');
+        setRedirecting(false);
       }
     } catch (error) {
+      console.error('Checkout error:', error);
       toast.error('មិនអាចដាក់ការបញ្ជាទិញបានទេ');
     } finally {
       setSubmitting(false);
@@ -176,8 +181,8 @@ const Checkout = () => {
                 </div>
               </div>
 
-              <motion.button type="submit" disabled={submitting} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full bg-[#3B82F6] text-white py-4 rounded-xl font-semibold text-base shadow-md hover:shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-70">
-                {submitting ? (
+              <motion.button type="submit" disabled={submitting || redirecting} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full bg-[#3B82F6] text-white py-4 rounded-xl font-semibold text-base shadow-md hover:shadow-lg hover:bg-blue-600 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-70">
+                {(submitting || redirecting) ? (
                   <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> កំពុងដាក់ការបញ្ជាទិញ...</>
                 ) : (
                   <><FiCheckCircle /> បញ្ជាក់ការបញ្ជាទិញ (${cart.total.toFixed(2)})</>

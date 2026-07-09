@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { orderAPI } from '../../services/api';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 // =============================================
@@ -54,6 +54,11 @@ const itemVariants = {
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const handleRetryPayment = (orderId) => {
+    navigate(`/checkout?retry=${orderId}`);
+  };
 
   useEffect(() => {
     loadOrders();
@@ -166,6 +171,16 @@ const Orders = () => {
                       <Link to={`/orders/${order.id}`} className="px-6 py-2 border border-gray-200 rounded-full text-sm font-medium text-gray-700 hover:bg-gray-50 transition hover:scale-105 active:scale-95">
                         មើលការបញ្ជាទិញ
                       </Link>
+                      {(order.status === 'pending' || order.status === 'PENDING') && order.payment_method === 'KHQR' && (
+                        <motion.button 
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handleRetryPayment(order.id)}
+                          className="px-6 py-2 bg-[#3B82F6] text-white rounded-full text-sm font-medium hover:bg-blue-600 transition shadow-md flex items-center gap-1"
+                        >
+                          ទូទាត់ម្តងទៀត
+                        </motion.button>
+                      )}
                       <motion.button 
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
