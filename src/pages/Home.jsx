@@ -8,7 +8,9 @@ import WishlistButton from '../components/common/WishlistButton';
 // Helper to safely grab image URL
 const getImageUrl = (url, fallback = '') => {
   if (!url) return fallback;
-  return url.startsWith('http') ? url : url;
+  if (url.startsWith('http')) return url;
+  const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000';
+  return `${baseUrl}${url}`;
 };
 
 const Home = () => {
